@@ -15,41 +15,33 @@ export default class Emitter {
     };
     this.particleMaxSize = 50;
     this.particleMinSize = 4;
+    this.mousefield = 100;
   }
 
-  initEvent(mouseDistance) {
-    window.addEventListener("mousemove", (e) => {
-      this.mouseInteraction(e, mouseDistance);
-    });
-  }
-
-  mouseInteraction(e, mouseDistance) {
-    this.mouse.x = e.clientX;
-    this.mouse.y = e.clientY;
-
+  mouseInteraction(e) {
     this.particles.forEach((p) => {
       if (
-        this.mouse.x - p.x < mouseDistance &&
-        this.mouse.x - p.x > -mouseDistance &&
-        this.mouse.y - p.y < mouseDistance &&
-        this.mouse.y - p.y > -mouseDistance
+        this.mouse.x - p.x < this.mousefield &&
+        this.mouse.x - p.x > -this.mousefield &&
+        this.mouse.y - p.y < this.mousefield &&
+        this.mouse.y - p.y > -this.mousefield
       ) {
         Object.keys(p.color).forEach(value => p.color[value] = Math.max(p.color[value] + 5, p.resetValues.color[value]))
         p.r = Math.min(this.particleMaxSize, p.r + 1);
       } else {
-          Object.keys(p.color).forEach(value => p.color[value] = p.resetValues.color[value])
+        Object.keys(p.color).forEach(value => p.color[value] = p.resetValues.color[value])
         p.r = Math.max(p.resetValues.r, p.r - 0.2);
-    }
-    // if (this.mouse.x - p.x > -mouseDistance && this.mouse.x - p.x < mouseDistance && this.mouse.y - p.y > -mouseDistance && this.mouse.y - p.y < mouseDistance) {
-    //     const sign = Math.sign(this.mouse.x - p.x);
-    //     p.x = this.mouse.x - (mouseDistance * sign)
-    // }
-    // if (this.mouse.y - p.y > -mouseDistance && this.mouse.y - p.y < mouseDistance && this.mouse.x - p.x > -mouseDistance && this.mouse.x - p.x < mouseDistance) {
-    //     const sign = Math.sign(this.mouse.y - p.y);
-    //     p.y = this.mouse.y - (mouseDistance * sign)
-    // }
-    
+      }
     });
+  }
+
+  mouseField() {
+
+    window.addEventListener('mousemove', (e) => {
+      this.mouse.x = e.clientX;
+      this.mouse.y = e.clientY;
+      this.mouseInteraction(e);
+    })
   }
 
   create(amount) {
@@ -73,8 +65,19 @@ export default class Emitter {
   animate = () => {
     requestAnimationFrame(this.animate);
     c.clearRect(0, 0, innerWidth, innerHeight);
+    c.strokeStyle = 'white'
+    c.lineWidth = 0.5;
     for (let particle of this.particles) {
       particle.update();
     }
+    
+    
+    c.moveTo(this.mouse.x, this.mouse.y)
+    c.beginPath();  // Start a new path
+    c.strokeStyle = 'white'
+    c.lineWidth = 1
+    c.arc(this.mouse.x, this.mouse.y, this.mousefield, 0, Math.PI * 2);
+    c.stroke();
+    c.closePath();
   };
 }
